@@ -1,13 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 const router = require('express').Router();
+const {readFromFile, readAndAppend} = require('../helpers/fsUtils');
+const UUID = require('../helpers/uuid');
 
 router.get('/notes', (req, res) => {
-    const notes = JSON.parse(fs.readFileSync(path.join(__dirname, '../db.json'), 'utf-8'));
-    res.json(notes);
+    readFromFile('./db/notes.json').then((notes) => res.json(JSON.parse(notes)))
 });
 
 router.post('/notes', (req, res) => {
-    const newNote = req.body;
-    const notes = JSON.parse(fs.readFileSync(path.join(__dirname, '../db.json'), 'utf-8'));
+    const {title, text} = req.body;
+    const newNote = {title, text, id: UUID()};
+    readAndAppend(newNote, './db/notes.json');
+    res.json('Success!');
 });
+
+module.exports = router;
